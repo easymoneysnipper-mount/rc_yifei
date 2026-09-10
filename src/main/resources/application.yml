@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: notification-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/notifications}
+    username: ${DB_USERNAME:notifications}
+    password: ${DB_PASSWORD:notifications}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+notification:
+  limits:
+    max-url-length: ${NOTIFICATION_MAX_URL_LENGTH:2048}
+    max-body-bytes: ${NOTIFICATION_MAX_BODY_BYTES:1048576}
+    max-headers: ${NOTIFICATION_MAX_HEADERS:32}
+    max-header-value-length: ${NOTIFICATION_MAX_HEADER_VALUE_LENGTH:4096}
+  worker:
+    concurrency: ${NOTIFICATION_WORKER_CONCURRENCY:4}
+    batch-size: ${NOTIFICATION_WORKER_BATCH_SIZE:4}
+    poll-interval-ms: ${NOTIFICATION_WORKER_POLL_INTERVAL_MS:500}
+    lease-seconds: ${NOTIFICATION_WORKER_LEASE_SECONDS:60}
+    max-attempts: ${NOTIFICATION_MAX_ATTEMPTS:8}
+    backoff-base-ms: ${NOTIFICATION_BACKOFF_BASE_MS:1000}
+    backoff-max-ms: ${NOTIFICATION_BACKOFF_MAX_MS:300000}
+    backoff-jitter-ms: ${NOTIFICATION_BACKOFF_JITTER_MS:500}
+  http:
+    connect-timeout-ms: ${NOTIFICATION_HTTP_CONNECT_TIMEOUT_MS:3000}
+    request-timeout-ms: ${NOTIFICATION_HTTP_REQUEST_TIMEOUT_MS:10000}
