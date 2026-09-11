@@ -1,14 +1,41 @@
+name: notification-service
+
 services:
   postgres:
     image: postgres:16
+    container_name: notification-postgres
     environment:
       POSTGRES_DB: notifications
       POSTGRES_USER: notifications
       POSTGRES_PASSWORD: notifications
     ports:
       - "5432:5432"
+    volumes:
+      - notification-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U notifications -d notifications"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 20
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: notification-service:0.1.0-SNAPSHOT
+    container_name: notification-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/notifications
+      DB_USERNAME: notifications
+      DB_PASSWORD: notifications
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  notification-postgres-data:
+    name: notification-postgres-data
